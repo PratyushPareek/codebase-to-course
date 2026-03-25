@@ -3,14 +3,14 @@
 Implementation patterns for every interactive element type used in courses. Pick the elements that best serve each module's teaching goal.
 
 ## Table of Contents
-1. [Code ↔ English Translation Blocks](#code--english-translation-blocks)
+1. [Interface Snippets](#interface-snippets)
 2. [Multiple-Choice Quizzes](#multiple-choice-quizzes)
 3. [Drag-and-Drop Matching](#drag-and-drop-matching)
 4. [Group Chat Animation](#group-chat-animation)
 5. [Message Flow / Data Flow Animation](#message-flow--data-flow-animation)
 6. [Interactive Architecture Diagram](#interactive-architecture-diagram)
 7. [Layer Toggle Demo](#layer-toggle-demo)
-8. ["Spot the Bug" Challenge](#spot-the-bug-challenge)
+8. ["Spot the Design Flaw" Challenge](#spot-the-design-flaw-challenge)
 9. [Scenario Quiz](#scenario-quiz)
 10. [Callout Boxes](#callout-boxes)
 11. [Pattern/Feature Cards](#patternfeature-cards)
@@ -23,91 +23,94 @@ Implementation patterns for every interactive element type used in courses. Pick
 
 ---
 
-## Code ↔ English Translation Blocks
+## Interface Snippets
 
-The most important teaching element. Shows real code from the project on the left and a plain English translation on the right, line by line.
+Short, readable code blocks (5-15 lines) that show the *shape* of a component: interfaces, type definitions, config objects, or key function signatures. These make architecture concrete without being a line-by-line walkthrough. Use them when explaining what a component accepts, returns, or exposes.
 
 **HTML:**
 ```html
-<div class="translation-block animate-in">
-  <div class="translation-code">
-    <span class="translation-label">CODE</span>
-    <pre><code>
-<span class="code-line"><span class="code-keyword">const</span> response = <span class="code-keyword">await</span> <span class="code-function">fetch</span>(url, {</span>
-<span class="code-line">  <span class="code-property">method</span>: <span class="code-string">'POST'</span>,</span>
-<span class="code-line">  <span class="code-property">headers</span>: { <span class="code-string">'Authorization'</span>: apiKey }</span>
-<span class="code-line">});</span>
-    </code></pre>
+<div class="interface-snippet animate-in">
+  <div class="snippet-header">
+    <span class="snippet-label">CONTRACT</span>
+    <span class="snippet-file">src/types/plugin.ts</span>
   </div>
-  <div class="translation-english">
-    <span class="translation-label">PLAIN ENGLISH</span>
-    <div class="translation-lines">
-      <p class="tl">Send a request to the URL and wait for a response...</p>
-      <p class="tl">We're sending data (POST), not just asking for it (GET)...</p>
-      <p class="tl">Include our API key so the server knows who we are...</p>
-      <p class="tl">End of the request setup.</p>
-    </div>
-  </div>
+  <pre class="snippet-code"><code>
+<span class="code-keyword">interface</span> <span class="code-function">Plugin</span> {
+  <span class="code-property">name</span>: <span class="code-keyword">string</span>;
+  <span class="code-property">version</span>: <span class="code-keyword">string</span>;
+  <span class="code-function">initialize</span>(<span class="code-property">config</span>: <span class="code-function">PluginConfig</span>): <span class="code-keyword">void</span>;
+  <span class="code-function">execute</span>(<span class="code-property">context</span>: <span class="code-function">RunContext</span>): <span class="code-function">Promise</span>&lt;<span class="code-function">Result</span>&gt;;
+  <span class="code-function">teardown</span>?(): <span class="code-keyword">void</span>;
+}
+  </code></pre>
+  <p class="snippet-caption">This is the contract every plugin must implement. The runner calls <code>initialize</code> once, then <code>execute</code> for each job.</p>
 </div>
 ```
 
 **CSS:**
 ```css
-.translation-block {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0;
+.interface-snippet {
   border-radius: var(--radius-md);
   overflow: hidden;
   box-shadow: var(--shadow-md);
   margin: var(--space-8) 0;
 }
-.translation-code {
-  background: var(--color-bg-code);
-  color: #CDD6F4;
-  padding: var(--space-6);
+.snippet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #181825;
+  padding: var(--space-2) var(--space-4);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.snippet-label {
   font-family: var(--font-mono);
-  font-size: var(--text-sm);
-  line-height: 1.7;
-  position: relative;
-  overflow-x: hidden;  /* NO horizontal scrollbar — ever */
-}
-.translation-code pre,
-.translation-code code {
-  white-space: pre-wrap;       /* wrap long lines instead of scrolling */
-  word-break: break-word;      /* break mid-word if needed */
-  overflow-x: hidden;
-}
-.translation-english {
-  background: var(--color-surface-warm);
-  padding: var(--space-6);
-  font-size: var(--text-sm);
-  line-height: 1.7;
-  border-left: 3px solid var(--color-accent);
-}
-.translation-label {
-  position: absolute;
-  top: var(--space-2);
-  right: var(--space-3);
   font-size: var(--text-xs);
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  opacity: 0.5;
+  color: var(--color-accent-muted);
 }
-.translation-english .translation-label {
-  color: var(--color-text-muted);
+.snippet-file {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: #6C7086;
 }
-/* Responsive: stack vertically on mobile */
-@media (max-width: 768px) {
-  .translation-block { grid-template-columns: 1fr; }
-  .translation-english { border-left: none; border-top: 3px solid var(--color-accent); }
+.snippet-code {
+  background: var(--color-bg-code);
+  color: #CDD6F4;
+  padding: var(--space-4) var(--space-6);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: 1.7;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-x: hidden;
+}
+.snippet-caption {
+  background: var(--color-surface-warm);
+  padding: var(--space-3) var(--space-5);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  border-top: 3px solid var(--color-accent);
+  margin: 0;
+}
+.snippet-caption code {
+  background: rgba(0,0,0,0.06);
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 0.9em;
 }
 ```
 
 **Rules:**
-- Each English line should correspond to 1-2 code lines
-- Use conversational language, not technical jargon
-- Highlight the "why" not just the "what" — e.g., "Include our API key so the server knows who we are" not "Set the Authorization header"
+- Show original code exactly as-is — never modify or simplify
+- Choose naturally short, self-contained definitions (interfaces, types, configs, signatures)
+- Don't show function bodies or implementation details — only contracts and shapes
+- Always include the file path in the header so the learner can find it
+- The caption should explain *why* this snippet matters, not repeat what the code says
+- If a snippet isn't readable at a glance (≤15 lines), use a diagram or prose instead
 
 ---
 
@@ -490,108 +493,408 @@ window.flowNext = function() {
 
 ## Interactive Architecture Diagram
 
-Full-system diagram where hovering/clicking a component shows a description tooltip.
+A powerful orientation visual for the course. Shows the full system at a glance — components grouped by zone (client, server, data layer, external services, etc.), with click/hover to reveal what each piece does. Strongly encouraged when the project has multiple distinct layers or services. Place early (modules 1-2) so the learner has a mental map before diving into details. Skip only if the project is small/flat enough that a simple list or flow diagram covers the structure.
+
+**Design principles:**
+- **Group by zone/layer** — visually cluster components that live together (e.g., "Browser," "API Server," "Database," "External Services"). Use bordered regions with subtle background tints.
+- **Use icons or emoji** — each component gets a visual icon that conveys its role at a glance.
+- **Show connections** — draw arrows or lines between components that communicate. Use CSS borders, pseudo-elements, or SVG paths. Label the connections where helpful (e.g., "REST API," "WebSocket," "SQL queries").
+- **Click to reveal** — clicking a component highlights it and shows a 1-2 sentence description below the diagram. Only one description visible at a time.
+- **Responsive** — on mobile, zones should stack vertically rather than sit side-by-side.
 
 **HTML:**
 ```html
 <div class="arch-diagram">
-  <div class="arch-zone arch-zone-browser">
-    <h4 class="arch-zone-label">Browser</h4>
-    <div class="arch-component" data-desc="Injects UI into the web page, reads DOM, captures user actions"
-         onclick="showArchDesc(this)">
-      <div class="arch-icon">📄</div>
-      <span>Component A</span>
+  <div class="arch-zones">
+    <div class="arch-zone" style="--zone-color: var(--color-actor-1)">
+      <h4 class="arch-zone-label">Browser</h4>
+      <div class="arch-components">
+        <button class="arch-component" data-desc="Renders the UI and handles user interactions. Built with React." onclick="showArchDesc(this)">
+          <div class="arch-icon">🖼️</div>
+          <span>Frontend UI</span>
+        </button>
+        <button class="arch-component" data-desc="Manages client-side state and caches API responses for performance." onclick="showArchDesc(this)">
+          <div class="arch-icon">📦</div>
+          <span>State Store</span>
+        </button>
+      </div>
     </div>
-    <!-- more components -->
+
+    <div class="arch-connector">
+      <span class="arch-connector-label">REST API</span>
+    </div>
+
+    <div class="arch-zone" style="--zone-color: var(--color-actor-2)">
+      <h4 class="arch-zone-label">Server</h4>
+      <div class="arch-components">
+        <button class="arch-component" data-desc="Handles incoming HTTP requests, validates input, and routes to the right handler." onclick="showArchDesc(this)">
+          <div class="arch-icon">🛠️</div>
+          <span>API Layer</span>
+        </button>
+        <button class="arch-component" data-desc="Core business logic — processes data, enforces rules, coordinates between services." onclick="showArchDesc(this)">
+          <div class="arch-icon">⚙️</div>
+          <span>Service Layer</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="arch-connector">
+      <span class="arch-connector-label">SQL Queries</span>
+    </div>
+
+    <div class="arch-zone" style="--zone-color: var(--color-actor-3)">
+      <h4 class="arch-zone-label">Data</h4>
+      <div class="arch-components">
+        <button class="arch-component" data-desc="PostgreSQL database storing all persistent application data." onclick="showArchDesc(this)">
+          <div class="arch-icon">🗄️</div>
+          <span>Database</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="arch-zone" style="--zone-color: var(--color-actor-4)">
+      <h4 class="arch-zone-label">External Services</h4>
+      <div class="arch-components">
+        <button class="arch-component" data-desc="Third-party API for sending transactional emails (welcome, password reset, etc.)" onclick="showArchDesc(this)">
+          <div class="arch-icon">📧</div>
+          <span>Email Service</span>
+        </button>
+        <button class="arch-component" data-desc="Cloud object storage for user-uploaded files and generated assets." onclick="showArchDesc(this)">
+          <div class="arch-icon">☁️</div>
+          <span>File Storage</span>
+        </button>
+      </div>
+    </div>
   </div>
-  <div class="arch-zone arch-zone-external">
-    <h4 class="arch-zone-label">External Services</h4>
-    <!-- API cards -->
+
+  <div class="arch-description" id="arch-desc">
+    <p>👆 Click any component to learn what it does</p>
   </div>
-  <div class="arch-description" id="arch-desc">Click any component to learn what it does</div>
 </div>
 ```
+
+**CSS:**
+```css
+.arch-diagram {
+  margin: var(--space-8) 0;
+}
+.arch-zones {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  align-items: center;
+}
+.arch-zone {
+  background: var(--color-surface);
+  border: 2px solid var(--zone-color, var(--color-border));
+  border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-6);
+  width: 100%;
+  max-width: var(--content-width);
+}
+.arch-zone-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--zone-color, var(--color-text-muted));
+  margin-bottom: var(--space-3);
+}
+.arch-components {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+.arch-component {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-surface-warm);
+  border: 2px solid var(--color-border-light);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+}
+.arch-component:hover {
+  border-color: var(--color-accent-muted);
+  box-shadow: var(--shadow-sm);
+}
+.arch-component.active {
+  border-color: var(--color-accent);
+  background: var(--color-accent-light);
+  box-shadow: 0 0 0 3px var(--color-accent-light), var(--shadow-md);
+}
+.arch-icon {
+  font-size: 1.2em;
+}
+.arch-connector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  color: var(--color-text-muted);
+}
+.arch-connector::before {
+  content: '';
+  width: 2px;
+  height: 16px;
+  background: var(--color-border);
+}
+.arch-connector::after {
+  content: '▼';
+  font-size: var(--text-xs);
+  color: var(--color-border);
+  margin-top: -4px;
+}
+.arch-connector-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin-top: var(--space-1);
+}
+.arch-description {
+  margin-top: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  background: var(--color-surface);
+  border-left: 3px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  min-height: 48px;
+  transition: opacity var(--duration-fast);
+}
+
+@media (max-width: 480px) {
+  .arch-components { flex-direction: column; }
+  .arch-component { width: 100%; }
+}
+```
+
+**JS:**
+```javascript
+window.showArchDesc = function(el) {
+  // Deactivate all components
+  document.querySelectorAll('.arch-component').forEach(c => c.classList.remove('active'));
+  // Activate clicked component
+  el.classList.add('active');
+  // Show description
+  const desc = document.getElementById('arch-desc');
+  desc.innerHTML = '<p>' + el.dataset.desc + '</p>';
+  desc.style.borderLeftColor = getComputedStyle(el.closest('.arch-zone')).getPropertyValue('--zone-color') || 'var(--color-accent)';
+};
+```
+
+**Adapting the diagram to different project types:**
+- **Web app** — zones like Browser, API Server, Database, External Services
+- **Library/framework** — zones like Public API, Core Engine, Plugins/Extensions, Internal Utilities
+- **CLI tool** — zones like CLI Parser, Command Handlers, Core Logic, I/O Layer
+- **Data pipeline** — zones like Ingestion, Transform, Storage, Orchestration
+- **ML project** — zones like Data Loading, Model Architecture, Training Loop, Inference API
+
+Always adapt zones and component names to match the actual project structure. The example above is a template — replace with real components from the codebase.
 
 ---
 
 ## Layer Toggle Demo
 
-Shows how different layers (e.g., HTML/CSS/JS, or data/logic/UI) build on each other. Three tabs switch between views.
+Shows how different layers of a system build on each other. Use tabs or buttons to switch between views, revealing how each layer adds to the one below it. Adapt the layers to whatever the project uses — this is NOT limited to HTML/CSS/JS.
+
+**Example layer sets by project type:**
+- **Web app** — HTML → + CSS → + JS (visual rendering layers)
+- **Data pipeline** — Raw Data → Validated → Enriched → Aggregated
+- **Library** — Public API → Internal Logic → Storage/IO
+- **API server** — Request → Middleware → Handler → Database
+- **ML project** — Raw Input → Preprocessed → Model Output → Post-processed
 
 **HTML:**
 ```html
 <div class="layer-demo">
   <div class="layer-tabs">
-    <button class="layer-tab active" onclick="showLayer('html')">HTML</button>
-    <button class="layer-tab" onclick="showLayer('css')">+ CSS</button>
-    <button class="layer-tab" onclick="showLayer('js')">+ JS</button>
+    <button class="layer-tab active" onclick="showLayer('layer-1')">Layer 1</button>
+    <button class="layer-tab" onclick="showLayer('layer-2')">+ Layer 2</button>
+    <button class="layer-tab" onclick="showLayer('layer-3')">+ Layer 3</button>
   </div>
   <div class="layer-viewport">
-    <div class="layer" id="layer-html" style="display:block">
-      <!-- Raw unstyled version -->
+    <div class="layer" id="layer-1" style="display:block">
+      <!-- First/base layer view -->
     </div>
-    <div class="layer" id="layer-css" style="display:none">
-      <!-- Styled version -->
+    <div class="layer" id="layer-2" style="display:none">
+      <!-- Second layer added -->
     </div>
-    <div class="layer" id="layer-js" style="display:none">
-      <!-- Interactive version -->
-    </div>
-  </div>
-  <p class="layer-description" id="layer-desc">This is the raw HTML...</p>
-</div>
-```
-
----
-
-## "Spot the Bug" Challenge
-
-Show code with a deliberate bug. User clicks the buggy line. Reveal explains the issue.
-
-**HTML:**
-```html
-<div class="bug-challenge">
-  <h3>Find the bug in this code:</h3>
-  <div class="bug-code">
-    <div class="bug-line" data-line="1" onclick="checkBugLine(this, false)">
-      <span class="line-num">1</span>
-      <code>chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {</code>
-    </div>
-    <div class="bug-line" data-line="2" onclick="checkBugLine(this, false)">
-      <span class="line-num">2</span>
-      <code>  if (msg.action === 'fetchData') {</code>
-    </div>
-    <div class="bug-line bug-target" data-line="3" onclick="checkBugLine(this, true)">
-      <span class="line-num">3</span>
-      <code>    fetch(url).then(r => r.json()).then(data => sendResponse(data));</code>
-    </div>
-    <div class="bug-line" data-line="4" onclick="checkBugLine(this, false)">
-      <span class="line-num">4</span>
-      <code>  }</code>
-    </div>
-    <div class="bug-line" data-line="5" onclick="checkBugLine(this, false)">
-      <span class="line-num">5</span>
-      <code>});</code>
+    <div class="layer" id="layer-3" style="display:none">
+      <!-- Third layer added -->
     </div>
   </div>
-  <div class="bug-feedback" id="bug-feedback"></div>
+  <p class="layer-description" id="layer-desc">This is the base layer...</p>
 </div>
 ```
 
 **JS:**
 ```javascript
-window.checkBugLine = function(el, isCorrect) {
-  const feedback = el.closest('.bug-challenge').querySelector('.bug-feedback');
+window.showLayer = function(layerId) {
+  // Hide all layers
+  document.querySelectorAll('.layer-demo .layer').forEach(l => l.style.display = 'none');
+  // Show selected
+  document.getElementById(layerId).style.display = 'block';
+  // Update active tab
+  document.querySelectorAll('.layer-tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  // Update description
+  const descriptions = {
+    'layer-1': 'The base layer — what you start with...',
+    'layer-2': 'Adding the second layer transforms...',
+    'layer-3': 'The final layer brings everything together...'
+  };
+  document.getElementById('layer-desc').textContent = descriptions[layerId] || '';
+};
+```
+
+**CSS:**
+```css
+.layer-demo {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  margin: var(--space-8) 0;
+}
+.layer-tabs {
+  display: flex;
+  background: var(--color-surface);
+  border-bottom: 2px solid var(--color-border-light);
+}
+.layer-tab {
+  flex: 1;
+  padding: var(--space-3) var(--space-4);
+  border: none;
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  transition: all var(--duration-fast);
+}
+.layer-tab.active {
+  color: var(--color-accent);
+  border-bottom: 2px solid var(--color-accent);
+  font-weight: 600;
+}
+.layer-viewport {
+  min-height: 200px;
+  padding: var(--space-6);
+  background: var(--color-surface-warm);
+}
+.layer-description {
+  padding: var(--space-3) var(--space-5);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  border-top: 1px solid var(--color-border-light);
+  margin: 0;
+}
+```
+
+**Rules:**
+- Each tab should show a cumulative view (layer 2 includes layer 1, etc.) so the learner sees what each layer *adds*
+- Label tabs with the project-specific layer names, not generic "Layer 1/2/3"
+- The description below should explain what changed and why this layer matters
+
+---
+
+## "Spot the Design Flaw" Challenge
+
+Present an architectural decision, configuration, or code pattern with a subtle design flaw. The learner clicks the problematic element. The reveal explains the issue and the better approach. This tests architectural understanding, not syntax knowledge.
+
+**Types of flaws to present:**
+- **Architecture flaws** — a component doing too much, wrong layer handling a responsibility, circular dependency
+- **Configuration mistakes** — missing timeout, no retry policy, hardcoded secrets, missing index
+- **Pattern misuse** — synchronous call where async is needed, polling where a webhook would work, caching without invalidation
+- **Scaling issues** — N+1 query, unbounded queue, missing rate limit
+
+**HTML:**
+```html
+<div class="flaw-challenge">
+  <h3>Something's off in this design. Can you spot it?</h3>
+  <div class="flaw-options">
+    <button class="flaw-option" data-correct="false" onclick="checkFlaw(this)">
+      <div class="flaw-icon">📨</div>
+      <div>
+        <strong>API Gateway</strong>
+        <p>Routes requests to the correct service</p>
+      </div>
+    </button>
+    <button class="flaw-option" data-correct="true" onclick="checkFlaw(this)">
+      <div class="flaw-icon">🗄️</div>
+      <div>
+        <strong>User Service queries Order DB directly</strong>
+        <p>Fetches order history by calling the orders table</p>
+      </div>
+    </button>
+    <button class="flaw-option" data-correct="false" onclick="checkFlaw(this)">
+      <div class="flaw-icon">🔔</div>
+      <div>
+        <strong>Notification Service</strong>
+        <p>Sends emails via external provider</p>
+      </div>
+    </button>
+  </div>
+  <div class="flaw-feedback" id="flaw-feedback"></div>
+</div>
+```
+
+**JS:**
+```javascript
+window.checkFlaw = function(el) {
+  const feedback = el.closest('.flaw-challenge').querySelector('.flaw-feedback');
+  const isCorrect = el.dataset.correct === 'true';
+  
   if (isCorrect) {
     el.classList.add('correct');
-    feedback.innerHTML = '<strong>Found it!</strong> The listener uses an async operation (fetch) but doesn\'t return true. Chrome closes the message channel before the response can be sent. Fix: add <code>return true;</code> at the end.';
-    feedback.className = 'bug-feedback show success';
+    feedback.innerHTML = '<strong>Good catch!</strong> The User Service is reaching directly into the Order Service\'s database instead of going through its API. This creates tight coupling — if the orders table schema changes, the User Service breaks. The fix: User Service should call the Order Service\'s API instead.';
+    feedback.className = 'flaw-feedback show success';
   } else {
     el.classList.add('incorrect');
-    feedback.innerHTML = 'Not this line — look for where the async timing might cause problems...';
-    feedback.className = 'bug-feedback show error';
-    setTimeout(() => { el.classList.remove('incorrect'); feedback.className = 'bug-feedback'; }, 2000);
+    feedback.innerHTML = 'This component looks fine — think about which service is crossing a boundary it shouldn\'t...';
+    feedback.className = 'flaw-feedback show error';
+    setTimeout(() => { el.classList.remove('incorrect'); feedback.className = 'flaw-feedback'; }, 2500);
   }
 };
+```
+
+**CSS:**
+```css
+.flaw-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: var(--space-4) 0;
+}
+.flaw-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--duration-fast);
+  font-family: var(--font-body);
+}
+.flaw-option:hover { border-color: var(--color-accent-muted); }
+.flaw-option.correct { border-color: var(--color-success); background: var(--color-success-light); }
+.flaw-option.incorrect { border-color: var(--color-error); background: var(--color-error-light); }
+.flaw-icon { font-size: 1.5rem; }
+.flaw-option p { margin: var(--space-1) 0 0; font-size: var(--text-sm); color: var(--color-text-secondary); }
+.flaw-feedback {
+  max-height: 0; overflow: hidden; opacity: 0;
+  transition: max-height var(--duration-normal), opacity var(--duration-normal);
+}
+.flaw-feedback.show { max-height: 200px; opacity: 1; padding: var(--space-4); margin-top: var(--space-3); border-radius: var(--radius-sm); }
+.flaw-feedback.success { background: var(--color-success-light); color: var(--color-success); }
+.flaw-feedback.error { background: var(--color-error-light); color: var(--color-error); }
+```
 ```
 
 ---
